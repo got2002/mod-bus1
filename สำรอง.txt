@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Modbus EVC</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+         :root {
+            --text-light: rgba(255, 255, 255, 0.6);
+            --text-lighter: rgba(255, 255, 255, 0.9);
+            --spacing-s: 8px;
+            --spacing-m: 16px;
+            --spacing-l: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 64px;
+            --width-container: 1200px;
+        }
+        
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+        * {
+            box-sizing: border-box;
+        }
+        
+         :root {
+            --dark-color: hsl(var(--hue), 100%, 9%);
+            --light-color: hsl(var(--hue), 95%, 98%);
+            --base: hsl(var(--hue), 95%, 50%);
+            --complimentary1: hsl(var(--hue-complimentary1), 95%, 50%);
+            --complimentary2: hsl(var(--hue-complimentary2), 95%, 50%);
+            --font-family: "Poppins", system-ui;
+            --bg-gradient: linear-gradient( to bottom, hsl(var(--hue), 95%, 99%), hsl(var(--hue), 95%, 84%));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border: 0;
+        }
+        
+        html {
+            display: grid;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body {
+            max-width: 1920px;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 2rem;
+            font-family: var(--font-family);
+            background-color: #FFDEE9;
+            background-image: linear-gradient(0deg, #f5ecd0 0%, #B5FFFC 100%);
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        .orb-canvas {
+            place-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        strong {
+            font-weight: 600;
+        }
+        
+        .overlay {
+            place-items: center;
+            width: 100%;
+            max-width: 835px;
+            max-height: 640px;
+            padding: 8rem 6rem;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0.75rem 2rem 0 rgba(0, 0, 0, 0.150);
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+        }
+        
+        .overlay1 {
+            place-items: center;
+            width: 100%;
+            max-width: 900px;
+            max-height: 590px;
+            padding: 8rem 6rem;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            box-shadow: 0 0.75rem 2rem 0 rgba(0, 0, 0, 0.150);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+        }
+        
+        .overlay__inner {
+            max-width: 36rem;
+            margin-top: -18px;
+        }
+        
+        .overlay__title {
+            font-size: 1.875rem;
+            line-height: 2.75rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+        
+        .text-gradient {
+            background-image: -webkit-linear-gradient(#f27b04, #c7c10c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            -moz-background-clip: text;
+            -moz-text-fill-color: transparent;
+        }
+        
+        .overlay__description {
+            font-size: 1rem;
+            line-height: 1.75rem;
+            margin-bottom: 3rem;
+        }
+        
+        .overlay__btns {
+            width: 100%;
+            max-width: 30rem;
+            display: flex;
+        }
+        
+        .overlay__btn {
+            width: 50%;
+            height: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--light-color);
+            background: var(--dark-color);
+            border: none;
+            border-radius: 0.5rem;
+            transition: transform 150ms ease;
+            outline-color: hsl(var(--hue), 95%, 50%);
+        }
+        
+        .overlay__btn:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+        
+        .overlay__btn--transparent {
+            background: transparent;
+            color: var(--dark-color);
+            border: 2px solid var(--dark-color);
+            border-width: 2px;
+            margin-right: 0.75rem;
+        }
+        
+        .overlay__btn-emoji {
+            margin-left: 0.375rem;
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--dark-color);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Not too many browser support this yet but it's good to add! */
+        
+        @media (prefers-contrast: high) {
+            .orb-canvas {
+                display: none;
+            }
+        }
+        
+        @media only screen and (max-width: 1140px) {
+            .overlay {
+                padding: 8rem 4rem;
+            }
+        }
+        
+        @media only screen and (max-width: 840px) {
+            body {
+                padding: 1.5rem;
+            }
+            .overlay {
+                padding: 4rem;
+                height: auto;
+            }
+            .overlay__title {
+                font-size: 1.25rem;
+                line-height: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            .overlay__description {
+                font-size: 0.875rem;
+                line-height: 1.5rem;
+                margin-bottom: 2.5rem;
+            }
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .overlay {
+                padding: 1.5rem;
+            }
+            .overlay__btns {
+                flex-wrap: wrap;
+            }
+            .overlay__btn {
+                width: 100%;
+                font-size: 0.75rem;
+                margin-right: 0;
+            }
+            .overlay__btn:first-child {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        .container-fluid {
+            margin-top: -28px;
+            width: 67%;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            font-size: small;
+            text-align: center;
+        }
+        
+        .btn {
+            align-items: center;
+            background-image: -webkit-linear-gradient(#f9aa5b, #d6c43a);
+        }
+        
+        .form-container {
+            border: 1px solid #fafafa;
+            border-radius: 5px;
+            box-shadow: 0px 2px 6px rgba(219, 176, 176, 0.1);
+            padding: 20px;
+            background-color: white;
+        }
+        
+        .btn-container {
+            position: absolute;
+            margin-left: 434px;
+            margin-top: -350px;
+            width: 205px;
+        }
+        
+        .btn-buttonElster {
+            margin-left: 1px;
+            position: absolute;
+            margin-top: 100px;
+        }
+        
+        .btn-buttonActaris {
+            margin-left: 1px;
+            position: absolute;
+            margin-top: 180px;
+        }
+        
+        .btn-button1 p {
+            display: flex;
+            position: absolute;
+            margin-left: 1px;
+            margin-top: 70px;
+        }
+        
+        .btn-button2 p {
+            display: flex;
+            position: absolute;
+            margin-left: 1px;
+            margin-top: 153px;
+        }
+        
+        .btn-warning {
+            position: absolute;
+            background-image: -webkit-linear-gradient(#f9aa5b, #d6c43a);
+        }
+        
+        .data-info {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .data-info h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        /* สไตล์สำหรับตาราง */
+        
+        table {
+            top: 600px;
+        }
+        
+        td {
+            padding: 9px;
+            border: 1px solid #868585;
+            background-color: #ffffff;
+            font-size: 10px;
+        }
+        
+        th {
+            background: rgba(174, 149, 7, 0.4);
+        }
+        /* สไตล์สำหรับปุ่มและการจัดกลุ่มของปุ่ม */
+        
+        .btn-group {
+            margin-top: 10px;
+            justify-content: center;
+            gap: 10px;
+        }
+        /* สไตล์สำหรับช่องข้อมูลที่ใช้ความกว้างเต็มและมีพื้นหลัง */
+        
+        .full-width-input {
+            width: 100%;
+            height: 100%;
+            background-color: #0980f7;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .col-sm-9 {
+            display: grid;
+            top: 322.5px;
+            right: 100px;
+        }
+        
+        #communicationTrafficContainer {
+            display: none;
+            margin: -75px 0px 100px 700px;
+        }
+        
+        #colSm9Container {
+            display: grid;
+            display: none;
+        }
+        
+        #showModbusFormButton {
+            display: none;
+        }
+        
+        .Settings {
+            display: none;
+        }
+        
+        .Settings h1 {
+            position: relative;
+            margin-top: 240px;
+        }
+        
+        .header-links li {
+            color: white;
+            display: inline;
+            float: right;
+            padding: 15px;
+            font-size: 14px;
+        }
+        
+        .header-links a {
+            color: #757575;
+            -webkit-transition: all 0.2s ease-in;
+        }
+        
+        .header-links a:hover {
+            color: #d6c43a !important;
+        }
+        
+        .list-container {
+            position: relative;
+        }
+        
+        .list-container.active .more-button-list {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .list-container.active .more-button-list-item {
+            -webkit-animation: fadeInItem 0.6s 0.2s forwards;
+            animation: fadeInItem 0.6s 0.2s forwards;
+        }
+        
+        .list-container.active .more-button-list-item:nth-child(2) {
+            -webkit-animation-delay: 0.4s;
+            animation-delay: 0.4s;
+        }
+        
+        .list-container.active .more-button-list-item:nth-child(3) {
+            -webkit-animation-delay: 0.6s;
+            animation-delay: 0.6s;
+        }
+        
+        .list-container.active .more-button-list-item:nth-child(4) {
+            -webkit-animation-delay: 0.8s;
+            animation-delay: 0.8s;
+        }
+        
+        .list-container.active .more-button {
+            -webkit-animation: onePulse 0.6s forwards linear;
+            animation: onePulse 0.6s forwards linear;
+        }
+        
+        .list-container.active .menu-icon-wrapper {
+            transform: rotate(-45deg);
+        }
+        
+        .list-container.active .menu-icon-line.first {
+            transform: rotate(-90deg) translateX(1px);
+        }
+        
+        .list-container.active .menu-icon-line.last {
+            transform: rotate(-90deg) translateX(-1px);
+        }
+        
+        .more-button-list {
+            display: flex;
+            left: 90px;
+            flex-direction: row;
+            border-radius: 8px;
+            list-style-type: none;
+            width: 160px;
+            height: 80px;
+            padding: 0;
+            padding: 6px;
+            position: absolute;
+            right: 24px;
+            bottom: 122px;
+            opacity: 1;
+            transform: scale(1);
+            transform-origin: bottom right;
+            transition: all 0.3s ease 0.1s;
+        }
+        
+        .more-button-list li {
+            opacity: 1;
+        }
+        
+        .more-button-list-item {
+            display: flex;
+            align-items: center;
+            color: #d6c43a;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s ease-in;
+            transform: translatex(-10px);
+        }
+        
+        .more-button-list-item:hover {
+            color: #5cb3ff;
+        }
+        
+        .more-button-list-item:after {}
+        
+        .more-button-list-item:last-child:after {
+            display: none;
+        }
+        
+        .more-button-list-item svg {
+            width: 18px;
+            height: 18px;
+            margin-left: 14px;
+        }
+        
+        .more-button-list-item span {
+            display: inline-block;
+            line-height: 20px;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+        
+        @-webkit-keyframes onePulse {
+            0% {
+                box-shadow: 0px 0px 0px 0px rgba(92, 103, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0px 0px 0px 12px rgba(92, 103, 255, 0.1);
+            }
+            100% {
+                box-shadow: 0px 0px 0px 4px rgba(92, 103, 255, 0.3);
+            }
+        }
+        
+        @keyframes onePulse {
+            0% {
+                box-shadow: 0px 0px 0px 0px rgba(92, 103, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0px 0px 0px 12px rgba(92, 103, 255, 0.1);
+            }
+            100% {
+                box-shadow: 0px 0px 0px 4px rgba(92, 103, 255, 0.3);
+            }
+        }
+        
+        @-webkit-keyframes fadeInItem {
+            100% {
+                transform: translatex(0px);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInItem {
+            100% {
+                transform: translatex(0px);
+                opacity: 1;
+            }
+        }
+        
+        .socials {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .social-link {
+            color: #fff;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            margin-right: 12px;
+        }
+        
+        .menu-icon-wrapper {
+            border-radius: 2px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 330ms ease-out;
+        }
+        
+        .menu-icon-line {
+            background-color: #fff;
+            border-radius: 2px;
+            width: 100%;
+            height: 2px;
+        }
+        
+        .menu-icon-line.half {
+            width: 50%;
+        }
+        
+        .menu-icon-line.first {
+            transition: transform 300ms cubic-bezier(0.52, -0.8, 0.52, 0.52);
+            transform-origin: right;
+        }
+        
+        .menu-icon-line.last {
+            align-self: flex-end;
+            transition: transform 300ms cubic-bezier(0.52, -0.8, 0.52, 0.52);
+            transform-origin: left;
+        }
+        
+        .home {
+            display: block;
+        }
+        
+        .SETTINGS {
+            display: none;
+        }
+        
+        .databass {
+            display: none;
+        }
+        
+        .about {
+            display: none;
+        }
+        
+        .overlay {
+            display: block;
+        }
+        
+        .home h1 {
+            position: absolute;
+            display: grid;
+            top: 150px;
+            right: 565px;
+            font-size: 55px;
+            color: #d6c43a;
+        }
+        
+        .card-grid {
+            display: grid;
+            display: flex;
+            grid-template-columns: repeat(1, 1fr);
+            grid-column-gap: var(--spacing-l);
+            grid-row-gap: var(--spacing-l);
+            max-width: var(--width-container);
+            width: 115%;
+            height: 190px;
+            bottom: 200px;
+            margin-left: -40px;
+        }
+        
+        .card-grid h3 {
+            display: flex;
+            font-size: larger;
+        }
+        
+        @media(min-width: 540px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media(min-width: 960px) {
+            .card-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .card {
+            display: flex;
+            list-style: none;
+            position: relative;
+        }
+        
+        .card:before {
+            content: '';
+            display: block;
+            padding-bottom: 150%;
+            width: 100%;
+        }
+        
+        .card__background {
+            display: grid;
+            background-size: cover;
+            background-position: center;
+            border-radius: var(--spacing-l);
+            bottom: 0;
+            filter: brightness(0.90) saturate(2) contrast(0.85);
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transform-origin: center;
+            trsnsform: scale(1) translateZ(0);
+            transition: filter 200ms linear, transform 200ms linear;
+        }
+        
+        .card:hover .card__background {
+            transform: scale(1.05) translateZ(0);
+        }
+        
+        .card-grid:hover>.card:not(:hover) .card__background {
+            filter: brightness(0.9) saturate(0) contrast(1.2) blur(160px);
+        }
+        
+        .card__content {
+            left: 0;
+            padding: var(--spacing-l);
+            position: absolute;
+            top: 0;
+        }
+        
+        .card__category {
+            display: flex;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: var(--spacing-s);
+            text-transform: uppercase;
+        }
+        
+        .card__heading {
+            display: flex;
+            color: var(--text-lighter);
+            font-size: 1.9rem;
+            text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.0);
+            line-height: 1.4;
+            word-spacing: 100vw;
+        }
+        
+        .btn-primary1 {
+            position: sticky;
+            display: flex;
+            left: 770px;
+            top: 203px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+
+
+
+
+
+
+    <div class="SETTINGS" id="SETTINGS1">
+        <h1>SETTINGS</h1>
+    </div>
+
+    <div class="databass" id="databass1">
+        <h1>databass</h1>
+
+    </div>
+
+
+
+
+
+
+
+
+    <!-- Canvas -->
+    <canvas id="orbcanvas" class="orb-canvas"></canvas>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay">
+
+        <!-- Overlay inner wrapper -->
+        <div class="overlay__inner">
+            <!-- Title -->
+            <h1 class="overlay__title">
+
+                <span id="textgradient" class="text-gradient">Modbus TCP Data Reader</span>
+            </h1>
+            <!-- Description -->
+            <div class="list-container" id="listcontainer">
+
+                <div class="menu-icon-wrapper">
+
+                </div>
+                </button>
+                <a href="{{ url_for('home') }}">
+                    <ul class="more-button-list">
+                        <li class="more-button-list-item" id="morebuttonlistitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>HOME</span>
+                        </li>
+                </a>
+                <a href="{{ url_for('index') }}">
+                    <li class="more-button-list-item" id="morebuttonlistitem3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cloud">
+                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+                            </svg>
+                        <span>DataReader</span>
+                    </li>
+                </a>
+                <a href="{{ url_for('databass') }}">
+                    <li class="more-button-list-item" id="morebuttonlistitem2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                        <span>DATABASS</span>
+                    </li>
+                </a>
+
+                <a href="{{ url_for('about') }}">
+                    <li class="more-button-list-item" id="morebuttonlistitem4">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                        <span>ABOUT</span>
+                    </li>
+                </a>
+            </div>
+
+            <div class="container-fluid" id="containerfluid">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 pt-4">
+
+                        <form method="POST" id="modbusForm">
+                            <button type="submit" name="download_data_excel" value="actaris_daily" class="btn btn-primary1" id="btnprimary1" style="     background: rgba(255, 255, 255, 0.1); ">
+                                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 100 100" >
+                                            <path fill="#c7ede6" d="M87.215,56.71C88.35,54.555,89,52.105,89,49.5c0-6.621-4.159-12.257-10.001-14.478 C78.999,35.015,79,35.008,79,35c0-11.598-9.402-21-21-21c-9.784,0-17.981,6.701-20.313,15.757C36.211,29.272,34.638,29,33,29 c-7.692,0-14.023,5.793-14.89,13.252C12.906,43.353,9,47.969,9,53.5C9,59.851,14.149,65,20.5,65c0.177,0,0.352-0.012,0.526-0.022 C21.022,65.153,21,65.324,21,65.5C21,76.822,30.178,86,41.5,86c6.437,0,12.175-2.972,15.934-7.614C59.612,80.611,62.64,82,66,82 c4.65,0,8.674-2.65,10.666-6.518C77.718,75.817,78.837,76,80,76c6.075,0,11-4.925,11-11C91,61.689,89.53,58.727,87.215,56.71z"></path><path fill="#fdfcef" d="M43.783,33.5c0,0,3.64,0,6.125,0s4.5-2.015,4.5-4.5c0-2.333-1.782-4.229-4.055-4.455 c0.022-0.181,0.055-0.358,0.055-0.545c0-2.485-2.015-4.5-4.5-4.5c-1.438,0-2.703,0.686-3.527,1.736 c-0.14-2.636-2.302-4.736-4.973-4.736c-2.761,0-5,2.239-5,5c0,0.446,0.077,0.87,0.187,1.282c-0.642-0.777-1.6-1.282-2.687-1.282 c-1.781,0-3.234,1.335-3.455,3.055c-0.181-0.022-0.358-0.055-0.545-0.055c-2.485,0-4.5,2.015-4.5,4.5s2.015,4.5,4.5,4.5 s9.5,0,9.5,0h5.375V34h3V33.5z"></path><path fill="#472b29" d="M37.408,16c-3.033,0-5.5,2.467-5.5,5.5c0,0.016,0,0.031,0,0.047c-0.602-0.354-1.29-0.547-2-0.547 c-1.831,0-3.411,1.261-3.858,3.005C26.003,24.002,25.955,24,25.908,24c-2.757,0-5,2.243-5,5s2.243,5,5,5h14.875 c0.276,0,0.5-0.224,0.5-0.5s-0.224-0.5-0.5-0.5H25.908c-2.206,0-4-1.794-4-4s1.794-4,4-4c0.117,0,0.23,0.017,0.343,0.032 l0.141,0.019c0.021,0.003,0.041,0.004,0.062,0.004c0.246,0,0.462-0.185,0.495-0.437C27.14,23.125,28.412,22,29.908,22 c0.885,0,1.723,0.401,2.301,1.1c0.098,0.118,0.241,0.182,0.386,0.182c0.078,0,0.156-0.018,0.228-0.056 c0.209-0.107,0.314-0.346,0.254-0.573c-0.116-0.436-0.17-0.802-0.17-1.153c0-2.481,2.019-4.5,4.5-4.5 c2.381,0,4.347,1.872,4.474,4.263c0.011,0.208,0.15,0.387,0.349,0.45c0.05,0.016,0.101,0.024,0.152,0.024 c0.15,0,0.296-0.069,0.392-0.192C43.545,20.563,44.687,20,45.908,20c2.206,0,4,1.794,4,4c0,0.117-0.017,0.23-0.032,0.343 l-0.019,0.141c-0.016,0.134,0.022,0.268,0.106,0.373c0.084,0.105,0.207,0.172,0.34,0.185c2.055,0.205,3.604,1.906,3.604,3.958 c0,2.206-1.794,4-4,4h-6.125c-0.276,0-0.5,0.224-0.5,0.5s0.224,0.5,0.5,0.5h6.125c2.757,0,5-2.243,5-5 c0-2.397-1.689-4.413-4.003-4.877c0.002-0.041,0.003-0.082,0.003-0.123c0-2.757-2.243-5-5-5c-1.176,0-2.293,0.416-3.183,1.164 C42.126,17.76,39.963,16,37.408,16L37.408,16z"></path><path fill="#472b29" d="M35.908,23c-1.403,0-2.609,0.999-2.913,2.341C32.627,25.119,32.209,25,31.783,25 c-1.202,0-2.198,0.897-2.353,2.068C29.227,27.022,29.034,27,28.845,27c-1.529,0-2.811,1.2-2.918,2.732 C25.918,29.87,26.021,29.99,26.159,30c0.006,0,0.012,0,0.018,0c0.13,0,0.24-0.101,0.249-0.232 c0.089-1.271,1.151-2.268,2.419-2.268c0.229,0,0.47,0.042,0.738,0.127c0.022,0.007,0.045,0.01,0.067,0.01 c0.055,0,0.11-0.02,0.156-0.054c0.064-0.047,0.102-0.129,0.102-0.209c0-1.034,0.841-1.875,1.875-1.875 c0.447,0,0.885,0.168,1.231,0.473c0.047,0.041,0.106,0.063,0.165,0.063c0.032,0,0.063-0.006,0.093-0.019 c0.088-0.035,0.148-0.117,0.155-0.212c0.102-1.292,1.191-2.305,2.479-2.305c0.208,0,0.425,0.034,0.682,0.107 c0.023,0.007,0.047,0.01,0.07,0.01c0.109,0,0.207-0.073,0.239-0.182c0.038-0.133-0.039-0.271-0.172-0.309 C36.424,23.04,36.164,23,35.908,23L35.908,23z"></path><path fill="#472b29" d="M49.791,24.5c-1.326,0-2.508,0.897-2.874,2.182c-0.038,0.133,0.039,0.271,0.172,0.309 c0.023,0.007,0.046,0.01,0.068,0.01c0.109,0,0.209-0.072,0.24-0.182C47.703,25.748,48.687,25,49.791,25 c0.117,0,0.23,0.014,0.342,0.029c0.012,0.002,0.023,0.003,0.035,0.003c0.121,0,0.229-0.092,0.246-0.217 c0.019-0.137-0.077-0.263-0.214-0.281C50.065,24.516,49.93,24.5,49.791,24.5L49.791,24.5z"></path><path fill="#fff" d="M14.405,52H4.5C4.224,52,4,51.776,4,51.5S4.224,51,4.5,51h9.905c0.276,0,0.5,0.224,0.5,0.5 S14.682,52,14.405,52z"></path><path fill="#fff" d="M17.5,52h-1c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h1c0.276,0,0.5,0.224,0.5,0.5 S17.777,52,17.5,52z"></path><path fill="#fff" d="M22.491,54H13.5c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h8.991c0.276,0,0.5,0.224,0.5,0.5 S22.767,54,22.491,54z"></path><path fill="#fff" d="M11.5,54h-1c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h1c0.276,0,0.5,0.224,0.5,0.5 S11.777,54,11.5,54z"></path><path fill="#fff" d="M8.5,54h-2C6.224,54,6,53.776,6,53.5S6.224,53,6.5,53h2C8.776,53,9,53.224,9,53.5S8.777,54,8.5,54z"></path><path fill="#fff" d="M14.5,56h-2c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h2c0.276,0,0.5,0.224,0.5,0.5 S14.776,56,14.5,56z"></path><path fill="#fff" d="M17.5,47c-0.177,0-0.823,0-1,0c-0.276,0-0.5,0.224-0.5,0.5c0,0.276,0.224,0.5,0.5,0.5 c0.177,0,0.823,0,1,0c0.276,0,0.5-0.224,0.5-0.5C18,47.224,17.776,47,17.5,47z"></path><path fill="#fff" d="M17.5,49c-0.177,0-4.823,0-5,0c-0.276,0-0.5,0.224-0.5,0.5c0,0.276,0.224,0.5,0.5,0.5 c0.177,0,4.823,0,5,0c0.276,0,0.5-0.224,0.5-0.5C18,49.224,17.776,49,17.5,49z"></path><path fill="#fff" d="M22.5,51c-0.177,0-2.823,0-3,0c-0.276,0-0.5,0.224-0.5,0.5c0,0.276,0.224,0.5,0.5,0.5 c0.177,0,2.823,0,3,0c0.276,0,0.5-0.224,0.5-0.5C23,51.224,22.776,51,22.5,51z"></path><path fill="#fff" d="M85.5,46.5h-10c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h10c0.276,0,0.5,0.224,0.5,0.5 S85.776,46.5,85.5,46.5z"></path><path fill="#fff" d="M89.5,46.5h-2c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h2c0.276,0,0.5,0.224,0.5,0.5 S89.776,46.5,89.5,46.5z"></path><path fill="#fff" d="M94.5,48.5h-10c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h10c0.276,0,0.5,0.224,0.5,0.5 S94.777,48.5,94.5,48.5z"></path><path fill="#fff" d="M82.5,48.5h-1c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h1c0.276,0,0.5,0.224,0.5,0.5 S82.776,48.5,82.5,48.5z"></path><path fill="#fff" d="M79.375,48.5H77.5c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h1.875c0.276,0,0.5,0.224,0.5,0.5 S79.651,48.5,79.375,48.5z"></path><path fill="#fff" d="M88.5,44.5h-5c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h5c0.276,0,0.5,0.224,0.5,0.5 S88.777,44.5,88.5,44.5z"></path><path fill="#fff" d="M85.5,50.5h-2c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h2c0.276,0,0.5,0.224,0.5,0.5 S85.776,50.5,85.5,50.5z"></path><rect width="18.222" height="10.25" x="53.956" y="40.25" fill="#96ba45"></rect><path fill="#5b7729" d="M72.178,50.5H35.733v18.222c0,1.258,1.019,2.278,2.278,2.278H69.9c1.258,0,2.278-1.019,2.278-2.278 V50.5z"></path><rect width="18.222" height="10.25" x="53.956" y="50.5" fill="#6f913d"></rect><rect width="18.222" height="10.25" x="35.733" y="40.25" fill="#6f913d"></rect><path fill="#c0d078" d="M69.9,30H53.956v10.25h18.222v-7.972C72.178,31.019,71.158,30,69.9,30z"></path><path fill="#96ba45" d="M38.011,30h15.944v10.25H35.733v-7.972C35.733,31.019,36.753,30,38.011,30z"></path><path fill="#472b29" d="M69.9,71.7h-31.89c-1.642,0-2.978-1.336-2.978-2.978V32.278c0-1.642,1.336-2.978,2.978-2.978H69.9 c1.642,0,2.978,1.336,2.978,2.978v36.444C72.878,70.364,71.542,71.7,69.9,71.7z M38.011,30.7c-0.87,0-1.577,0.708-1.577,1.578 v36.444c0,0.87,0.707,1.578,1.577,1.578H69.9c0.87,0,1.577-0.708,1.577-1.578V32.278c0-0.87-0.707-1.578-1.577-1.578H38.011z"></path><path fill="#6f913d" d="M46.622,61.889H28.4c-1.258,0-2.278-1.019-2.278-2.278V41.389c0-1.258,1.019-2.278,2.278-2.278 h18.222c1.258,0,2.278,1.019,2.278,2.278v18.222C48.9,60.87,47.881,61.889,46.622,61.889z"></path><path fill="#472b29" d="M46.622,40.511c0.484,0,0.878,0.394,0.878,0.878v18.222c0,0.484-0.394,0.878-0.878,0.878H28.4 c-0.484,0-0.878-0.394-0.878-0.878V41.389c0-0.484,0.394-0.878,0.878-0.878H46.622 M46.622,39.111H28.4 c-1.259,0-2.278,1.019-2.278,2.278v18.222c0,1.258,1.019,2.278,2.278,2.278h18.222c1.259,0,2.278-1.019,2.278-2.278V41.389 C48.9,40.13,47.881,39.111,46.622,39.111L46.622,39.111z"></path><path fill="#fff" d="M32.736,44.806h2.717l2.205,4.275l2.33-4.275h2.539L39.029,50.5l3.577,5.694h-2.678l-2.403-4.476 l-2.393,4.476h-2.717l3.636-5.715L32.736,44.806z"></path><path fill="#472b29" d="M42.527,44.806L39.029,50.5l3.577,5.694h-2.677l-2.403-4.476l-2.393,4.476h-2.717l3.636-5.715 l-3.317-5.674h2.717l2.205,4.275l2.33-4.275H42.527 M42.527,44.306h-2.539c-0.183,0-0.351,0.1-0.439,0.261l-1.879,3.447 l-1.773-3.437c-0.086-0.166-0.257-0.271-0.444-0.271h-2.717c-0.179,0-0.344,0.096-0.434,0.251 c-0.089,0.155-0.088,0.347,0.002,0.501l3.163,5.411l-3.473,5.458c-0.098,0.154-0.104,0.349-0.016,0.509 c0.088,0.16,0.256,0.259,0.438,0.259h2.717c0.184,0,0.354-0.102,0.441-0.264l1.953-3.653l1.962,3.654 c0.087,0.162,0.256,0.263,0.441,0.263h2.677c0.182,0,0.35-0.099,0.438-0.258s0.083-0.354-0.014-0.508l-3.412-5.431l3.335-5.43 c0.095-0.154,0.099-0.348,0.01-0.506S42.708,44.306,42.527,44.306L42.527,44.306z"></path><g><path fill="#fdfcef" d="M79.5,77.75c0,0,1.567,0,3.5,0s3.5-1.567,3.5-3.5c0-1.781-1.335-3.234-3.055-3.455 c0.028-0.179,0.055-0.358,0.055-0.545c0-1.933-1.567-3.5-3.5-3.5c-1.032,0-1.95,0.455-2.59,1.165 c-0.384-1.808-1.987-3.165-3.91-3.165c-2.209,0-4,1.791-4,4c0,0.191,0.03,0.374,0.056,0.558C69.128,68.964,68.592,68.75,68,68.75 c-1.228,0-2.245,0.887-2.455,2.055C65.366,70.777,65.187,70.75,65,70.75c-1.933,0-3.5,1.567-3.5,3.5s1.567,3.5,3.5,3.5 s7.5,0,7.5,0v0.5h7V77.75z"></path><path fill="#472b29" d="M81.25,73.25C81.112,73.25,81,73.138,81,73c0-1.223,0.995-2.218,2.218-2.218 c0.034,0.009,0.737-0.001,1.244,0.136c0.133,0.036,0.212,0.173,0.176,0.306c-0.036,0.134-0.173,0.213-0.306,0.176 c-0.444-0.12-1.1-0.12-1.113-0.118c-0.948,0-1.719,0.771-1.719,1.718C81.5,73.138,81.388,73.25,81.25,73.25z"></path><circle cx="74.5" cy="77.75" r=".5" fill="#472b29"></circle><path fill="#472b29" d="M83,78.25h-3.5c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5H83c1.654,0,3-1.346,3-3 c0-1.496-1.125-2.768-2.618-2.959c-0.134-0.018-0.255-0.088-0.336-0.196s-0.115-0.244-0.094-0.377 C82.975,70.564,83,70.41,83,70.25c0-1.654-1.346-3-3-3c-0.85,0-1.638,0.355-2.219,1c-0.125,0.139-0.321,0.198-0.5,0.148 c-0.182-0.049-0.321-0.195-0.36-0.379c-0.341-1.604-1.779-2.769-3.42-2.769c-1.93,0-3.5,1.57-3.5,3.5 c0,0.143,0.021,0.28,0.041,0.418c0.029,0.203-0.063,0.438-0.242,0.54c-0.179,0.102-0.396,0.118-0.556-0.01 C68.878,69.405,68.449,69.25,68,69.25c-0.966,0-1.792,0.691-1.963,1.644c-0.048,0.267-0.296,0.446-0.569,0.405 C65.314,71.275,65.16,71.25,65,71.25c-1.654,0-3,1.346-3,3s1.346,3,3,3h7.5c0.276,0,0.5,0.224,0.5,0.5s-0.224,0.5-0.5,0.5H65 c-2.206,0-4-1.794-4-4s1.794-4,4-4c0.059,0,0.116,0.002,0.174,0.006C65.588,69.07,66.711,68.25,68,68.25 c0.349,0,0.689,0.061,1.011,0.18c0.165-2.333,2.115-4.18,4.489-4.18c1.831,0,3.466,1.127,4.153,2.774 c0.68-0.499,1.502-0.774,2.347-0.774c2.206,0,4,1.794,4,4c0,0.048-0.001,0.095-0.004,0.142C85.739,70.84,87,72.419,87,74.25 C87,76.456,85.206,78.25,83,78.25z"></path><path fill="#472b29" d="M77.5,77.25c-0.159,0-0.841,0-1,0c-0.276,0-0.5,0.224-0.5,0.5c0,0.276,0.224,0.5,0.5,0.5 c0.159,0,0.841,0,1,0c0.276,0,0.5-0.224,0.5-0.5C78,77.474,77.776,77.25,77.5,77.25z"></path></g><path fill="#472b29" d="M53.955,71.032c-0.138,0-0.25-0.112-0.25-0.25V30.196c0-0.138,0.112-0.25,0.25-0.25 s0.25,0.112,0.25,0.25v40.586C54.205,70.92,54.093,71.032,53.955,71.032z"></path><path fill="#472b29" d="M72.178,40.5H50.479c-0.138,0-0.25-0.112-0.25-0.25S50.341,40,50.479,40h21.699 c0.138,0,0.25,0.112,0.25,0.25S72.315,40.5,72.178,40.5z"></path><path fill="#472b29" d="M56.729,50.739h-8.631c-0.138,0-0.25-0.112-0.25-0.25s0.112-0.25,0.25-0.25h8.631 c0.138,0,0.25,0.112,0.25,0.25S56.866,50.739,56.729,50.739z"></path><path fill="#472b29" d="M63.636,50.739h-5.293c-0.138,0-0.25-0.112-0.25-0.25s0.112-0.25,0.25-0.25h5.293 c0.138,0,0.25,0.112,0.25,0.25S63.773,50.739,63.636,50.739z"></path><path fill="#472b29" d="M72.178,50.739h-6.862c-0.138,0-0.25-0.112-0.25-0.25s0.112-0.25,0.25-0.25h6.862 c0.138,0,0.25,0.112,0.25,0.25S72.315,50.739,72.178,50.739z"></path><path fill="#472b29" d="M72.178,60.978h-24.08c-0.138,0-0.25-0.112-0.25-0.25s0.112-0.25,0.25-0.25h24.08 c0.138,0,0.25,0.112,0.25,0.25S72.315,60.978,72.178,60.978z"></path>
+                                            </svg>
+                                    </button>
+
+
+
+                            <div class="form-group">
+                                <label for="slave_id" style=" margin-bottom: 100px;">Slave ID</label>
+                                <input type="number" class="form-control" id="slave_id" name="slave_id" value="1" required style="height: 30px; width: 100%; font-size: x-small; margin-top: -100px; border-radius: 0.5rem; border: none; padding-left: 10px;">
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="function_code" style=" margin-bottom: 100px;">Function Code</label>
+                                <input type="number" class="form-control" id="function_code" name="function_code" value="3" required style="height: 30px;width: 100%; font-size: x-small;margin-top: -100px;  border-radius: 0.5rem;border: none;padding-left: 10px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="starting_address">Starting Address</label>
+                                <select class="form-control" id="starting_address" name="starting_address" required style="height: 30px;width: 100%; font-size: x-small; margin-top: -7px; border-radius: 0.5rem;border: none;padding-left: 10px;">
+                      <option value="">Select an option...</option> 
+
+                      <option value="custom">Custom</option>
+                      <option value="8000">8000 ( daily elster)</option>
+                      <option value="7003">7003 ( config elster)</option>
+                      <option value="20482">20482 ( daily actaris)</option>
+                      <option value="32">32 (config actaris)</option>
+                      <!-- Option for custom input -->
+                  </select>
+                            </div>
+
+                            <!-- Input field for custom value -->
+                            <div class="form-group">
+                                <label for="custom_starting_address">Custom Starting Address</label>
+                                <input type="number" class="form-control" id="custom_starting_address" name="custom_starting_address" style="height: 30px;width: 100%; font-size: x-small;margin-top: -7px; border-radius: 0.5rem;border: none;padding-left: 10px;">
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="quantity">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" value="{{60}}" required style="height: 30px;width: 100%; font-size: x-small;margin-top: -7px; border-radius: 0.5rem;border: none;padding-left: 10px;">
+
+                            </div>
+                            <div class="form-group">
+                                <label for="tcp_ip">TCP IP</label>
+                                <input type="text" class="form-control" id="tcp_ip" name="tcp_ip" value="" required style="height: 30px;width: 100%; font-size: x-small;margin-top: -7px; border-radius: 0.5rem;border: none;padding-left: 10px;">
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="tcp_port">TCP Port</label>
+                                <select class="form-control" id="tcp_port" name="tcp_port" required style="height: 30px;width: 100%; font-size:x-small;margin-top: -7px; border-radius: 0.5rem; border: none;padding-left: 10px;">
+                      <option value="">Select a TCP Port</option>
+                      <option value="2101">2101</option>
+                      <option value="2102">2102</option>
+                      <option value="2103">2103</option>
+                      <option value="2104">2104</option>
+                      <option value="2402">2402</option>
+                      <option value="2404">2404</option>
+                      <option value="4001">4001</option>
+                      <option value="4002">4002</option>
+                      <option value="4003">4003</option>
+                      <option value="4004">4004</option>
+                      <option value="6000">6000</option>
+                  </select>
+
+                            </div>
+
+
+
+
+
+                            <div class="btn-container" id="showDataButton">
+                                <!-- เพิ่มปุ่มสำหรับเปลี่ยนเป็น 16-bit -->
+
+                                <button type="submit" id="changeTo16BitButton" class="btn btn-primary" name="is_16bit" value="true" data-state="data" style="height: 34px; width: 45%; font-size: x-small;border-radius: 0.5rem;border: none;">Change to 16-bit</button >
+
+                  <!-- เพิ่มปุ่มสำหรับเปลี่ยนเป็น 32-bit -->
+                  <button type="submit" id="changeTo32BitButton" class="btn btn-secondary" name="is_16bit" value="false"style="height: 34px; width: 45%; font-size: x-small;border: none;border-radius: 0.5rem;">Change to 32-bit</button>
+
+                                <div class="btn-button1">
+                                    <p>Elster:</p>
+                                </div>
+                                <div class="btn-buttonElster">
+
+                                    <!-- ... เพิ่มฟิลด์และปุ่มของ Elster ตามที่คุณต้องการ ... -->
+                                    <button type="submit" class="btn btn-secondary" value="false" style="height: 34px; width: 80px; font-size: x-small; border: none;border-radius: 0.5rem;">Daily Data</button>
+                                    <button type="submit" class="btn btn-secondary" value="false" style="height: 34px; width: 104px; font-size: x-small;border: none;border-radius: 0.5rem;">Configuration</button>
+                                </div>
+                                <div class="btn-button2">
+                                    <p>Actaris:</p>
+                                </div>
+                                <!-- ... เพิ่มฟิลด์และปุ่มของ Actaris ตามที่คุณต้องการ ... -->
+                                <div class="btn-buttonActaris">
+
+
+                                    <button type="submit" name="action_actaris" value="daily_data" style="height: 34px; width: 80px; font-size: x-small; border: none; border-radius: 0.5rem; background-image: -webkit-linear-gradient(#f9aa5b, #d6c43a); ">
+                                            Daily Data
+                                        </button>
+
+
+                                    <button type="submit" name="action_configuration" value="configuration" style="height: 34px; width: 104px; font-size: x-small; border: none;border-radius: 0.5rem;background-image: -webkit-linear-gradient(#f9aa5b, #d6c43a);">Configuration</button>
+                                </div>
+                                <!-- Add a button to download the "Communication Traffic" table as an Excel file -->
+
+
+
+                            </div>
+                        </form>
+
+                        <!-- Your Modbus form content here -->
+
+
+                        <div id="datePickerContainer"></div>
+
+
+
+                    </div>
+                    <div class="col-sm-3 t pt-2">
+
+
+                        </form>
+                    </div>
+                    <div class="btn-warning">
+                        <button type="button" class="btn btn-warning" onclick="clearForm()" id="clearFormButton" style="height: 34px; width: 190px; margin-left: 434px; margin-top: -300px; border: none;border-radius: 0.5rem;">Clear</button>
+                    </div>
+
+
+
+
+
+
+                    <!-- Buttons -->
+                    <div class="overlay__btns">
+
+
+
+                        <form id="showModbusFormButton">
+                            <!-- Your Modbus form content here -->
+                            <button type="submit" class="btn" style=" margin-top: 15px;  margin-left: -1px;width: 60px; height:30px ; font-size: x-small; border: none;border-radius: 0.5rem;">back</i></button>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- partial -->
+
+        </div>
+    </div>
+
+    <div id="loading" style="display: none;">
+        Loading...
+    </div>
+
+    </div>
+
+
+    <div id="colSm9Container" class="col-sm-9">
+        <div class="table-responsive " style="width:100%; height: 100px; margin-right: 3500px;margin-top: 100px;">
+            <h4 class="text-center">แสดงข้อมูล</h4>
+            {% if data_list %}
+            <h4>Data for {{ selected_date }}</h4>
+            <table class="table table-hover">
+                <thead>
+
+                    <tr>
+                        <th>Description</th>
+                        <th>Value</th>
+                        <th>Address</th>
+
+                        <th>HEX Value</th>
+                        <th>Binary Value</th>
+
+                        <th> float_value</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in data_list %}
+                    <tr>
+                        <td>{{ data['description'] }}</td>
+                        <td>{{ data['value'] }}</td>
+                        <td>{{ data['address'] }}</td>
+
+                        <td>{{ data['hex_value'] }}</td>
+                        <td>{{ data['binary_value'] }}</td>
+
+                        <td>
+                            {% if data['is_16bit'] or data['address'] in [ 20482,20494,20498,20512,20524,20528,20543,20555,20559,20573,20585,20589,546,756,7015,7017,7019,7021,7031,7033,7035,7003,8000,8002,8004,8010,8012,8014,8020,8022,8024,8030,8032,8034,8040,8042,8044,8050,8052,8054,8060,8062,8064,8070,8072,8074,8080,8082,8084]
+                            %} {{ data['signed_value'] }}
+                            <!-- แสดง signed_value สำหรับ signed หรือ Ulong -->
+                            {% else %} {{ data['float_value'] }}
+                            <!-- แสดง float_value สำหรับ float และอื่น ๆ -->
+                            {% endif %}
+                        </td>
+
+
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% endif %}
+        </div>
+    </div>
+
+
+
+
+
+    <div id="communicationTrafficContainer" class="communication-traffic">
+        <h4>Communication Traffic</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Direction</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in communication_traffic %}
+                <tr>
+                    <td>{{ data['direction'] }}</td>
+                    <td>{{ data['data'] }}</td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+
+
+
+    <script>
+        ;
+        (function(name, factory) {
+            if (typeof window === 'object') {
+                window[name] = factory()
+            }
+        })('Ribbons', function() {
+            var _w = window,
+                _b = document.body,
+                _d = document.documentElement
+
+            // random helper
+            var random = function() {
+                if (arguments.length === 1) {
+                    // only 1 argument
+                    if (Array.isArray(arguments[0])) {
+                        // extract index from array
+                        var index = Math.round(random(0, arguments[0].length - 1))
+                        return arguments[0][index]
+                    }
+                    return random(0, arguments[0]) // assume numeric
+                } else if (arguments.length === 2) {
+                    // two arguments range
+                    return Math.random() * (arguments[1] - arguments[0]) + arguments[0]
+                } else if (arguments.length === 4) {
+                    //
+
+                    var array = [arguments[0], arguments[1], arguments[2], arguments[3]]
+                    return array[Math.floor(Math.random() * array.length)]
+                        //return console.log(item)
+                }
+                return 0 // default
+            }
+
+            // screen helper
+            var screenInfo = function(e) {
+                var width = Math.max(
+                        0,
+                        _w.innerWidth || _d.clientWidth || _b.clientWidth || 0
+                    ),
+                    height = Math.max(
+                        0,
+                        _w.innerHeight || _d.clientHeight || _b.clientHeight || 0
+                    ),
+                    scrollx =
+                    Math.max(0, _w.pageXOffset || _d.scrollLeft || _b.scrollLeft || 0) -
+                    (_d.clientLeft || 0),
+                    scrolly =
+                    Math.max(0, _w.pageYOffset || _d.scrollTop || _b.scrollTop || 0) -
+                    (_d.clientTop || 0)
+
+                return {
+                    width: width,
+                    height: height,
+                    ratio: width / height,
+                    centerx: width / 2,
+                    centery: height / 2,
+                    scrollx: scrollx,
+                    scrolly: scrolly
+                }
+            }
+
+            // mouse/input helper
+            var mouseInfo = function(e) {
+                var screen = screenInfo(e),
+                    mousex = e ? Math.max(0, e.pageX || e.clientX || 0) : 0,
+                    mousey = e ? Math.max(0, e.pageY || e.clientY || 0) : 0
+
+                return {
+                    mousex: mousex,
+                    mousey: mousey,
+                    centerx: mousex - screen.width / 2,
+                    centery: mousey - screen.height / 2
+                }
+            }
+
+            // point object
+            var Point = function(x, y) {
+                this.x = 0
+                this.y = 0
+                this.set(x, y)
+            }
+            Point.prototype = {
+                constructor: Point,
+
+                set: function(x, y) {
+                    this.x = x || 0
+                    this.y = y || 0
+                },
+                copy: function(point) {
+                    this.x = point.x || 0
+                    this.y = point.y || 0
+                    return this
+                },
+                multiply: function(x, y) {
+                    this.x *= x || 1
+                    this.y *= y || 1
+                    return this
+                },
+                divide: function(x, y) {
+                    this.x /= x || 1
+                    this.y /= y || 1
+                    return this
+                },
+                add: function(x, y) {
+                    this.x += x || 0
+                    this.y += y || 0
+                    return this
+                },
+                subtract: function(x, y) {
+                    this.x -= x || 0
+                    this.y -= y || 0
+                    return this
+                },
+                clampX: function(min, max) {
+                    this.x = Math.max(min, Math.min(this.x, max))
+                    return this
+                },
+                clampY: function(min, max) {
+                    this.y = Math.max(min, Math.min(this.y, max))
+                    return this
+                },
+                flipX: function() {
+                    this.x *= -1
+                    return this
+                },
+                flipY: function() {
+                    this.y *= -1
+                    return this
+                }
+            }
+
+            // class constructor
+            var Factory = function(options) {
+                this._canvas = null
+                this._context = null
+                this._sto = null
+                this._width = 0
+                this._height = 0
+                this._scroll = 0
+                this._ribbons = []
+                this._options = {
+                    // ribbon color HSL saturation amount
+                    colorSaturation: '80%',
+                    // ribbon color HSL brightness amount
+                    colorBrightness: '60%',
+                    // ribbon color opacity amount
+                    colorAlpha: 0.65,
+                    // how fast to cycle through colors in the HSL color space
+                    colorCycleSpeed: 6,
+                    // where to start from on the Y axis on each side (top|min, middle|center, bottom|max, random)
+                    verticalPosition: 'center',
+                    // how fast to get to the other side of the screen
+                    horizontalSpeed: 150,
+                    // how many ribbons to keep on screen at any given time
+                    ribbonCount: 3,
+                    // add stroke along with ribbon fill colors
+                    strokeSize: 0,
+                    // move ribbons vertically by a factor on page scroll
+                    parallaxAmount: -0.5,
+                    // add animation effect to each ribbon section over time
+                    animateSections: true
+                }
+                this._onDraw = this._onDraw.bind(this)
+                this._onResize = this._onResize.bind(this)
+                this._onScroll = this._onScroll.bind(this)
+                this.setOptions(options)
+                this.init()
+            }
+
+            // class prototype
+            Factory.prototype = {
+                constructor: Factory,
+
+                // Set and merge local options
+                setOptions: function(options) {
+                    if (typeof options === 'object') {
+                        for (var key in options) {
+                            if (options.hasOwnProperty(key)) {
+                                this._options[key] = options[key]
+                            }
+                        }
+                    }
+                },
+
+                // Initialize the ribbons effect
+                init: function() {
+                    try {
+                        this._canvas = document.createElement('canvas')
+                        this._canvas.style['display'] = 'block'
+                        this._canvas.style['position'] = 'fixed'
+                        this._canvas.style['margin'] = '0'
+                        this._canvas.style['padding'] = '0'
+                        this._canvas.style['border'] = '0'
+                        this._canvas.style['outline'] = '0'
+                        this._canvas.style['left'] = '0'
+                        this._canvas.style['top'] = '0'
+                        this._canvas.style['width'] = '100%'
+                        this._canvas.style['height'] = '100%'
+                        this._canvas.style['z-index'] = '-1'
+                        this._onResize()
+
+                        this._context = this._canvas.getContext('2d')
+                        this._context.clearRect(0, 0, this._width, this._height)
+                        this._context.globalAlpha = this._options.colorAlpha
+
+                        window.addEventListener('resize', this._onResize)
+                        window.addEventListener('scroll', this._onScroll)
+                        document.body.appendChild(this._canvas)
+                    } catch (e) {
+                        console.warn('Canvas Context Error: ' + e.toString())
+                        return
+                    }
+                    this._onDraw()
+                },
+
+                // Create a new random ribbon and to the list
+                addRibbon: function() {
+                    // movement data
+                    var dir = Math.round(random(1, 9)) > 5 ? 'right' : 'left',
+                        stop = 1000,
+                        hide = 200,
+                        min = 0 - hide,
+                        max = this._width + hide,
+                        movex = 0,
+                        movey = 0,
+                        startx = dir === 'right' ? min : max,
+                        starty = Math.round(random(0, this._height))
+
+                    // asjust starty based on options
+                    if (/^(top|min)$/i.test(this._options.verticalPosition)) {
+                        starty = 0 + hide
+                    } else if (/^(middle|center)$/i.test(this._options.verticalPosition)) {
+                        starty = this._height / 2
+                    } else if (/^(bottom|max)$/i.test(this._options.verticalPosition)) {
+                        starty = this._height - hide
+                    }
+
+                    // ribbon sections data
+                    var ribbon = [],
+                        point1 = new Point(startx, starty),
+                        point2 = new Point(startx, starty),
+                        point3 = null,
+                        color = Math.round(random(35, 35, 40, 40)),
+                        delay = 0
+
+                    // buils ribbon sections
+                    while (true) {
+                        if (stop <= 0) break
+                        stop--
+
+                        movex = Math.round(
+                            (Math.random() * 1 - 0.2) * this._options.horizontalSpeed
+                        )
+                        movey = Math.round((Math.random() * 1 - 0.5) * (this._height * 0.25))
+
+                        point3 = new Point()
+                        point3.copy(point2)
+
+                        if (dir === 'right') {
+                            point3.add(movex, movey)
+                            if (point2.x >= max) break
+                        } else if (dir === 'left') {
+                            point3.subtract(movex, movey)
+                            if (point2.x <= min) break
+                        }
+                        // point3.clampY( 0, this._height );
+                        //console.log(Math.round(random(1, 5)))
+                        ribbon.push({
+                            // single ribbon section
+                            point1: new Point(point1.x, point1.y),
+                            point2: new Point(point2.x, point2.y),
+                            point3: point3,
+                            color: color,
+                            delay: delay,
+                            dir: dir,
+                            alpha: 0,
+                            phase: 0
+                        })
+
+                        point1.copy(point2)
+                        point2.copy(point3)
+
+                        delay += 4
+                            //color += 1
+                            //console.log('colorCycleSpeed', color)
+                    }
+                    this._ribbons.push(ribbon)
+                },
+
+                // Draw single section
+                _drawRibbonSection: function(section) {
+                    if (section) {
+                        if (section.phase >= 1 && section.alpha <= 0) {
+                            return true // done
+                        }
+                        if (section.delay <= 0) {
+                            section.phase += 0.02
+                            section.alpha = Math.sin(section.phase) * 1
+                            section.alpha = section.alpha <= 0 ? 0 : section.alpha
+                            section.alpha = section.alpha >= 1 ? 1 : section.alpha
+
+                            if (this._options.animateSections) {
+                                var mod = Math.sin(1 + section.phase * Math.PI / 2) * 0.1
+
+                                if (section.dir === 'right') {
+                                    section.point1.add(mod, 0)
+                                    section.point2.add(mod, 0)
+                                    section.point3.add(mod, 0)
+                                } else {
+                                    section.point1.subtract(mod, 0)
+                                    section.point2.subtract(mod, 0)
+                                    section.point3.subtract(mod, 0)
+                                }
+                                section.point1.add(0, mod)
+                                section.point2.add(0, mod)
+                                section.point3.add(0, mod)
+                            }
+                        } else {
+                            section.delay -= 0.5
+                        }
+                        //console.log('section.color', section.color)
+                        var s = this._options.colorSaturation,
+                            l = this._options.colorBrightness,
+                            c =
+                            'hsla(' +
+                            section.color +
+                            ', ' +
+                            s +
+                            ', ' +
+                            l +
+                            ', ' +
+                            section.alpha +
+                            ' )'
+
+                        this._context.save()
+
+                        if (this._options.parallaxAmount !== 0) {
+                            this._context.translate(
+                                0,
+                                this._scroll * this._options.parallaxAmount
+                            )
+                        }
+                        this._context.beginPath()
+                        this._context.moveTo(section.point1.x, section.point1.y)
+                        this._context.lineTo(section.point2.x, section.point2.y)
+                        this._context.lineTo(section.point3.x, section.point3.y)
+                        this._context.fillStyle = c
+                        this._context.fill()
+
+                        if (this._options.strokeSize > 0) {
+                            this._context.lineWidth = this._options.strokeSize
+                            this._context.strokeStyle = c
+                            this._context.lineCap = 'round'
+                            this._context.stroke()
+                        }
+                        this._context.restore()
+                    }
+                    return false // not done yet
+                },
+
+                // Draw ribbons
+                _onDraw: function() {
+                    // cleanup on ribbons list to rtemoved finished ribbons
+                    for (var i = 0, t = this._ribbons.length; i < t; ++i) {
+                        if (!this._ribbons[i]) {
+                            this._ribbons.splice(i, 1)
+                        }
+                    }
+
+                    // draw new ribbons
+                    this._context.clearRect(0, 0, this._width, this._height)
+
+                    for (
+                        var a = 0; a < this._ribbons.length;
+                        ++a // single ribbon
+                    ) {
+                        var ribbon = this._ribbons[a],
+                            numSections = ribbon.length,
+                            numDone = 0
+
+                        for (
+                            var b = 0; b < numSections;
+                            ++b // ribbon section
+                        ) {
+                            if (this._drawRibbonSection(ribbon[b])) {
+                                numDone++ // section done
+                            }
+                        }
+                        if (numDone >= numSections) {
+                            // ribbon done
+                            this._ribbons[a] = null
+                        }
+                    }
+                    // maintain optional number of ribbons on canvas
+                    if (this._ribbons.length < this._options.ribbonCount) {
+                        this.addRibbon()
+                    }
+                    requestAnimationFrame(this._onDraw)
+                },
+
+                // Update container size info
+                _onResize: function(e) {
+                    var screen = screenInfo(e)
+                    this._width = screen.width
+                    this._height = screen.height
+
+                    if (this._canvas) {
+                        this._canvas.width = this._width
+                        this._canvas.height = this._height
+
+                        if (this._context) {
+                            this._context.globalAlpha = this._options.colorAlpha
+                        }
+                    }
+                },
+
+                // Update container size info
+                _onScroll: function(e) {
+                    var screen = screenInfo(e)
+                    this._scroll = screen.scrolly
+                }
+            }
+
+            // export
+            return Factory
+        })
+
+        new Ribbons({
+            colorSaturation: '60%',
+            colorBrightness: '50%',
+            colorAlpha: 0.08,
+            colorCycleSpeed: 5,
+            verticalPosition: 'random',
+            horizontalSpeed: 150,
+            ribbonCount: 3,
+            strokeSize: 0,
+            parallaxAmount: -0.2,
+            animateSections: true
+        })
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const colSm9Container = document.getElementById("colSm9Container");
+            const communicationTrafficContainer = document.getElementById("communicationTrafficContainer");
+            const overlay = document.getElementById("overlay");
+            const overlay1 = document.getElementById("overlay1");
+            const overlay2 = document.getElementById("overlay2");
+            const showModbusFormButton = document.getElementById("showModbusFormButton");
+            const showCommunicationButton = document.getElementById("showCommunicationButton");
+            const about1 = document.getElementById("about1");
+            const SETTINGS1 = document.getElementById("SETTINGS1");
+            const databass1 = document.getElementById("databass1");
+            const modbus1 = document.getElementById("modbus1");
+
+            const morebuttonlistitem = document.getElementById("morebuttonlistitem");
+            const morebuttonlistitem1 = document.getElementById("morebuttonlistitem1");
+            const morebuttonlistitem2 = document.getElementById("morebuttonlistitem2");
+            const morebuttonlistitem3 = document.getElementById("morebuttonlistitem3");
+            const morebuttonlistitem4 = document.getElementById("morebuttonlistitem4");
+            const clearFormButton = document.getElementById("clearFormButton");
+            const modbusForm = document.getElementById("modbusForm");
+            const containerfluid = document.getElementById("containerfluid");
+            const card1 = document.getElementById("card1");
+            const card2 = document.getElementById("card2");
+            const card3 = document.getElementById("card3");
+            const card4 = document.getElementById("card4");
+            const home1 = document.getElementById("home1");
+            const event = document.getElementById("event");
+            const loadingElement = document.getElementById("loading");
+            const showDataButton = document.getElementById("showDataButton"); // แทนด้วย ID ของปุ่มที่ใช้เรียกข้อมูล
+
+            showDataButton.addEventListener("click", function(event) {
+                //event.preventDefault();
+                clearFormButton.style.display = "none";
+                colSm9Container.style.display = "block";
+                communicationTrafficContainer.style.display = "block";
+                overlay.style.margin = "0px 3110px 0px 0px";
+                showModbusFormButton.style.display = "block";
+                modbusForm.style.display = "none";
+                home1.style.display = "none";
+                card1.style.display = "none";
+
+                modbusForm.style.display = "none";
+
+            });
+
+
+            showModbusFormButton.addEventListener("click", function() {
+                modbusForm.style.display = "block";
+                clearFormButton.style.display = "block";
+                overlay.style.display = "block";
+                colSm9Container.style.display = "none";
+                communicationTrafficContainer.style.display = "none";
+
+                showModbusFormButton.style.display = "none";
+
+                overlay.style.display = "flex";
+                overlay.style.margin = "0px 0px 0px 0px";
+
+            });
+
+
+        });
+
+
+
+
+
+
+        function clearForm() {
+            document.getElementById("slave_id").value = "";
+            document.getElementById("function_code").value = "";
+            document.getElementById("starting_address").value = "";
+            document.getElementById("quantity").value = "";
+
+
+            var communicationTrafficTable = document.querySelector(".communication-traffic table tbody");
+            communicationTrafficTable.innerHTML = "";
+
+            // Clear the response data
+            var responseDataTable = document.querySelector(".table.table-hover tbody");
+            responseDataTable.innerHTML = "";
+
+
+        }
+
+
+        // เพิ่มฟังก์ชันสำหรับเปลี่ยนเป็น 16-bit
+        function changeTo16Bit() {
+            document.getElementById("is_16bit").value = "true";
+            const startingAddressInput = document.getElementById("starting_address");
+            const quantityInput = document.getElementById("quantity");
+
+            startingAddressInput.max = 65535;
+            quantityInput.max = 65535;
+
+        }
+
+        function changeTo32Bit() {
+            document.getElementById("is_16bit").value = "false";
+            const startingAddressInput = document.getElementById("starting_address");
+            const quantityInput = document.getElementById("quantity");
+
+            startingAddressInput.max = 4294967295;
+            quantityInput.max = 4294967295;
+
+        }
+
+
+        function updateTable(data_list) {
+            const responseDataTable = document.querySelector(".table.table-hover tbody");
+            responseDataTable.innerHTML = "";
+
+            for (const data of data_list) {
+                const newRow = document.createElement("tr");
+                const addressCell = document.createElement("td");
+                addressCell.textContent = data.address;
+                newRow.appendChild(addressCell);
+
+                const valueCell = document.createElement("td");
+                valueCell.textContent = data.value;
+                newRow.appendChild(valueCell);
+
+                const hexValueCell = document.createElement("td");
+                hexValueCell.textContent = "0x" + Number(data.value).toString(16).toUpperCase(); // Convert to HEX and display
+                newRow.appendChild(hexValueCell);
+
+                const floatCell = document.createElement("td");
+                if (data.is_16bit || [8000, 7003, 20482, 32].includes(data.address)) {
+                    floatCell.textContent = data.signed_value;
+                } else if (data.float_value.includes('e')) {
+                    const floatValue = parseFloat(data.float_value);
+                    floatCell.textContent = floatValue.toExponential(); // Convert back to exponential notation
+                } else {
+                    floatCell.textContent = data.float_value;
+                }
+                newRow.appendChild(floatCell);
+
+                responseDataTable.appendChild(newRow);
+
+            }
+        }
+
+
+        // แสดงปฏิทินเมื่อคลิกปุ่ม Date
+        document.getElementById("dateButton").addEventListener("click", function() {
+            flatpickr("#datePickerContainer", {
+                inline: true,
+                onChange: function(selectedDates, dateStr, instance) {
+                    document.getElementById("selectedDate").value = dateStr;
+                }
+            });
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- ส่วนของการเรียกใช้ Bootstrap 4 JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" async></script>
+
+    <!-- Include xlsx.full.min.js for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js" async></script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js" integrity="sha384-bnBEpT0F5Fqx3pZlqVuAZMOLEH7B5P9RVoCkAPbQp9r1fB2MWXHI5I0aRUWoJ6fG" crossorigin="anonymous" async></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous" async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous" async></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous" async></script>
+
+
+
+
+
+</body>
+
+
+
+
+
+
+</html>
